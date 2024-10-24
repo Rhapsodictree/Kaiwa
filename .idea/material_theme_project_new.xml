@@ -3,8 +3,15 @@
   <component name="MaterialThemeProjectNewConfig">
     <option name="metadata">
       <MTProjectMetadataState>
-        <option name="userId" value="-5f49a44:191252e7240:-7ff8" />
+        <option name="migrated" value="true" />
+        <option name="pristineConfig" value="false" />
+        <option name="userId" value="4c89f7b3:18f7db0c8ec:-7ffe" />
       </MTProjectMetadataState>
+    </option>
+    <option name="titleBarState">
+      <MTProjectTitleBarConfigState>
+        <option name="overrideColor" value="false" />
+      </MTProjectTitleBarConfigState>
     </option>
   </component>
 </project>
