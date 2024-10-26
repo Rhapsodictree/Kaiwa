@@ -38,13 +38,10 @@ import kotlinx.coroutines.launch
 import com.example.kaiwa.config.APP_ID
 import com.example.kaiwa.config.token
 
-
-
 private const val TAG = "AgoraVideoCall"
 private val REQUIRED_PERMISSIONS = arrayOf(
     Manifest.permission.RECORD_AUDIO,
     Manifest.permission.CAMERA
-
 )
 
 class VideoActivity : ComponentActivity() {
@@ -80,7 +77,6 @@ fun VideoScreen(channelName: String, userRole: String) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // Permission handling
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -99,7 +95,6 @@ fun VideoScreen(channelName: String, userRole: String) {
         }
     }
 
-    // Check initial permissions
     LaunchedEffect(Unit) {
         val hasPermissions = REQUIRED_PERMISSIONS.all {
             ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
@@ -185,7 +180,8 @@ private fun VideoCallContent(
         engine?.let { safeEngine ->
             ControlPanel(
                 engine = safeEngine,
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier.align(Alignment.BottomCenter),
+                userRole = userRole
             )
         }
     }
@@ -223,7 +219,8 @@ private fun RemoteVideoView(
 @Composable
 private fun ControlPanel(
     engine: RtcEngine,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    userRole: String
 ) {
     var isMuted by remember { mutableStateOf(false) }
     var isVideoEnabled by remember { mutableStateOf(true) }
@@ -237,29 +234,33 @@ private fun ControlPanel(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            onClick = {
-                isMuted = !isMuted
-                engine.muteLocalAudioStream(isMuted)
-            },
-            modifier = Modifier
-                .size(56.dp)
-                .background(if (isMuted) Color.Red else Color.Gray, CircleShape)
-        ) {
-            Icon(
-                imageVector = if (isMuted) Icons.Rounded.MicOff else Icons.Rounded.Mic,
-                contentDescription = "Toggle Microphone",
-                tint = Color.White
-            )
+        if (userRole == "Broadcaster") {
+            // Only show mic control for broadcasters
+            IconButton(
+                onClick = {
+                    isMuted = !isMuted
+                    engine.muteLocalAudioStream(isMuted)
+                },
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(if (isMuted) Color.Red else Color.Gray, CircleShape)
+            ) {
+                Icon(
+                    imageVector = if (isMuted) Icons.Rounded.MicOff else Icons.Rounded.Mic,
+                    contentDescription = "Toggle Microphone",
+                    tint = Color.White
+                )
+            }
         }
 
+        // End call button is available for both roles
         IconButton(
             onClick = {
                 engine.leaveChannel()
                 activity?.finish()
             },
             modifier = Modifier
-                .size(72.dp)
+                .size(if (userRole == "Broadcaster") 72.dp else 56.dp)
                 .background(Color.Red, CircleShape)
         ) {
             Icon(
@@ -269,20 +270,23 @@ private fun ControlPanel(
             )
         }
 
-        IconButton(
-            onClick = {
-                isVideoEnabled = !isVideoEnabled
-                engine.muteLocalVideoStream(!isVideoEnabled)
-            },
-            modifier = Modifier
-                .size(56.dp)
-                .background(if (!isVideoEnabled) Color.Red else Color.Gray, CircleShape)
-        ) {
-            Icon(
-                imageVector = if (isVideoEnabled) Icons.Rounded.Videocam else Icons.Rounded.VideocamOff,
-                contentDescription = "Toggle Video",
-                tint = Color.White
-            )
+        if (userRole == "Broadcaster") {
+            // Only show video control for broadcasters
+            IconButton(
+                onClick = {
+                    isVideoEnabled = !isVideoEnabled
+                    engine.muteLocalVideoStream(!isVideoEnabled)
+                },
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(if (!isVideoEnabled) Color.Red else Color.Gray, CircleShape)
+            ) {
+                Icon(
+                    imageVector = if (isVideoEnabled) Icons.Rounded.Videocam else Icons.Rounded.VideocamOff,
+                    contentDescription = "Toggle Video",
+                    tint = Color.White
+                )
+            }
         }
     }
 }

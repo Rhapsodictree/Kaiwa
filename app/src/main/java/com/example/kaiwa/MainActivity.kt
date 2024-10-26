@@ -5,16 +5,20 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.outlined.Videocam
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,38 +47,72 @@ class MainActivity : ComponentActivity() {
 fun LoginPage() {
     var isLoading by remember { mutableStateOf(false) }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .padding(horizontal = 24.dp)
     ) {
-        // App Title
-        Text(
-            text = "KAIWA",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "VIDEO CONFERENCING APP",
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(50.dp))
-
-        if (isLoading) {
-            CircularProgressIndicator()
-        } else {
-            InputFields(
-                onJoinClick = { isLoading = true },
-                onJoinComplete = { isLoading = false }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // App Logo and Title Section
+            Icon(
+                imageVector = Icons.Outlined.Videocam,
+                contentDescription = "App Logo",
+                modifier = Modifier.size(72.dp),
+                tint = MaterialTheme.colorScheme.primary
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "KAIWA",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 4.sp
+                ),
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Text(
+                text = "Video Conferencing App",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    letterSpacing = 2.sp
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // Main Content Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                )
+            ) {
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    InputFields(
+                        onJoinClick = { isLoading = true },
+                        onJoinComplete = { isLoading = false }
+                    )
+                }
+            }
         }
     }
 }
@@ -92,11 +130,11 @@ private fun InputFields(
     var selectedRole by remember { mutableStateOf(userRoleOptions[0]) }
 
     Column(
-        modifier = Modifier.padding(horizontal = 10.dp),
-        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         // Channel Name Input
-        TextField(
+        OutlinedTextField(
             value = channelName,
             onValueChange = {
                 channelName = it
@@ -108,45 +146,55 @@ private fun InputFields(
             supportingText = channelNameError?.let {
                 { Text(it, color = MaterialTheme.colorScheme.error) }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = if (channelNameError != null) 0.dp else 16.dp),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            ),
             singleLine = true
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Role Selection
-        Text(
-            text = "Select Role:",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        userRoleOptions.forEach { role ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .selectable(
-                        selected = (role == selectedRole),
-                        onClick = { selectedRole = role }
-                    )
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+        // Role Selection Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
             ) {
-                RadioButton(
-                    selected = (role == selectedRole),
-                    onClick = { selectedRole = role }
-                )
                 Text(
-                    text = role,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 16.dp)
+                    text = "Select Role",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
+
+                userRoleOptions.forEach { role ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = (role == selectedRole),
+                            onClick = { selectedRole = role },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = MaterialTheme.colorScheme.primary
+                            )
+                        )
+                        Text(
+                            text = role,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 12.dp)
+                        )
+                    }
+                }
             }
         }
-
-        Spacer(modifier = Modifier.height(32.dp))
 
         // Join Button
         Button(
@@ -175,20 +223,21 @@ private fun InputFields(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
+            shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary
             )
         ) {
-            Icon(
-                Icons.Filled.ArrowForward,
-                contentDescription = "Join",
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
             Text(
                 text = "Join Meeting",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            Icon(
+                Icons.Filled.ArrowForward,
+                contentDescription = "Join",
+                modifier = Modifier.size(20.dp)
             )
         }
     }
