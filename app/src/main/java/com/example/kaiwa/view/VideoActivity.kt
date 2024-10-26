@@ -194,70 +194,71 @@ private fun VideoCallContent(
                 }
                 2 -> {
                     // Two remote users: Grid layout with local video overlay
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        remoteUsers.chunked(2).forEach { rowUsers ->
-                            Row(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxWidth()
-                            ) {
-                                rowUsers.forEach { uid ->
-                                    RemoteVideoView(
-                                        engine = safeEngine,
-                                        uid = uid,
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .fillMaxHeight()
-                                    )
-                                }
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            remoteUsers.forEach { uid ->
+                                RemoteVideoView(
+                                    engine = safeEngine,
+                                    uid = uid,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight()
+                                )
                             }
                         }
 
                         if (userRole == "Broadcaster") {
-                            Box(modifier = Modifier.fillMaxSize()) {
-                                LocalVideoView(
-                                    engine = safeEngine,
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .padding(16.dp)
-                                        .size(width = 120.dp, height = 160.dp)
-                                )
-                            }
+                            LocalVideoView(
+                                engine = safeEngine,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(16.dp)
+                                    .size(width = 120.dp, height = 160.dp)
+                            )
                         }
                     }
                 }
                 else -> {
                     // Three or more remote users: Grid layout
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        val rows = (remoteUsers.size + 1) / 2 // Calculate number of rows needed
-                        remoteUsers.chunked((remoteUsers.size + rows - 1) / rows).forEach { rowUsers ->
-                            Row(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxWidth()
-                            ) {
-                                rowUsers.forEach { uid ->
-                                    RemoteVideoView(
-                                        engine = safeEngine,
-                                        uid = uid,
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .fillMaxHeight()
-                                    )
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            val chunkedUsers = remoteUsers.chunked((remoteUsers.size + 1) / 2)
+                            chunkedUsers.forEach { rowUsers ->
+                                Row(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth()
+                                ) {
+                                    rowUsers.forEach { uid ->
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .fillMaxHeight()
+                                                .padding(1.dp)
+                                        ) {
+                                            RemoteVideoView(
+                                                engine = safeEngine,
+                                                uid = uid,
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        }
+                                    }
+                                    // Add empty spaces if needed to maintain grid
+                                    repeat(((remoteUsers.size + 1) / 2) - rowUsers.size) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                    }
                                 }
                             }
                         }
 
                         if (userRole == "Broadcaster") {
-                            Box(modifier = Modifier.fillMaxSize()) {
-                                LocalVideoView(
-                                    engine = safeEngine,
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .padding(16.dp)
-                                        .size(width = 100.dp, height = 133.dp)
-                                )
-                            }
+                            LocalVideoView(
+                                engine = safeEngine,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(16.dp)
+                                    .size(width = 100.dp, height = 133.dp)
+                            )
                         }
                     }
                 }
