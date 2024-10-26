@@ -158,21 +158,109 @@ private fun VideoCallContent(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Local video view for broadcasters
-        if (userRole == "Broadcaster" && engine != null) {
-            LocalVideoView(engine!!)
-        }
-
-        // Remote video views
+        // Remote video views layout
         engine?.let { safeEngine ->
-            remoteUsers.forEach { uid ->
-                RemoteVideoView(
-                    engine = safeEngine,
-                    uid = uid,
-                    modifier = Modifier
-                        .align(if (remoteUsers.size == 1) Alignment.Center else Alignment.TopStart)
-                        .fillMaxSize(if (remoteUsers.size == 1) 1f else 0.3f)
-                )
+            when (remoteUsers.size) {
+                0 -> {
+                    // Only local video when no remote users
+                    if (userRole == "Broadcaster") {
+                        LocalVideoView(
+                            engine = safeEngine,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+                1 -> {
+                    // One remote user: Show them in main view, local video in small overlay
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        // Remote user takes most of the screen
+                        RemoteVideoView(
+                            engine = safeEngine,
+                            uid = remoteUsers.first(),
+                            modifier = Modifier.fillMaxSize()
+                        )
+
+                        // Local video in small overlay if broadcaster
+                        if (userRole == "Broadcaster") {
+                            LocalVideoView(
+                                engine = safeEngine,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(16.dp)
+                                    .size(width = 120.dp, height = 160.dp)
+                            )
+                        }
+                    }
+                }
+                2 -> {
+                    // Two remote users: Grid layout with local video overlay
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        remoteUsers.chunked(2).forEach { rowUsers ->
+                            Row(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
+                            ) {
+                                rowUsers.forEach { uid ->
+                                    RemoteVideoView(
+                                        engine = safeEngine,
+                                        uid = uid,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .fillMaxHeight()
+                                    )
+                                }
+                            }
+                        }
+
+                        if (userRole == "Broadcaster") {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                LocalVideoView(
+                                    engine = safeEngine,
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(16.dp)
+                                        .size(width = 120.dp, height = 160.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+                else -> {
+                    // Three or more remote users: Grid layout
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        val rows = (remoteUsers.size + 1) / 2 // Calculate number of rows needed
+                        remoteUsers.chunked((remoteUsers.size + rows - 1) / rows).forEach { rowUsers ->
+                            Row(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
+                            ) {
+                                rowUsers.forEach { uid ->
+                                    RemoteVideoView(
+                                        engine = safeEngine,
+                                        uid = uid,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .fillMaxHeight()
+                                    )
+                                }
+                            }
+                        }
+
+                        if (userRole == "Broadcaster") {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                LocalVideoView(
+                                    engine = safeEngine,
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(16.dp)
+                                        .size(width = 100.dp, height = 133.dp)
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -188,7 +276,10 @@ private fun VideoCallContent(
 }
 
 @Composable
-private fun LocalVideoView(engine: RtcEngine) {
+private fun LocalVideoView(
+    engine: RtcEngine,
+    modifier: Modifier = Modifier
+) {
     AndroidView(
         factory = { context ->
             TextureView(context).apply {
@@ -196,7 +287,7 @@ private fun LocalVideoView(engine: RtcEngine) {
                 engine.startPreview()
             }
         },
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier
     )
 }
 
@@ -235,7 +326,6 @@ private fun ControlPanel(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (userRole == "Broadcaster") {
-            // Only show mic control for broadcasters
             IconButton(
                 onClick = {
                     isMuted = !isMuted
@@ -253,7 +343,6 @@ private fun ControlPanel(
             }
         }
 
-        // End call button is available for both roles
         IconButton(
             onClick = {
                 engine.leaveChannel()
@@ -271,7 +360,6 @@ private fun ControlPanel(
         }
 
         if (userRole == "Broadcaster") {
-            // Only show video control for broadcasters
             IconButton(
                 onClick = {
                     isVideoEnabled = !isVideoEnabled
