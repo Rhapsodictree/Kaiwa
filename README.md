@@ -1,4 +1,3 @@
-
 # Kaiwa- Video Calling App
 
 Kaiwa is a real-time video calling Android application built with Jetpack Compose and Agora SDK. It enables high-quality video calls between users with broadcaster and audience roles, making it perfect for live streaming and interactive video scenarios.
