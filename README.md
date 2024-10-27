@@ -83,11 +83,10 @@ git clone https://github.com/Rhapsodictree/kaiwa.git
 ```
 Configure Agora Credentials
 
-    - Create a file named config.kt in app/src/main/java/com/example/kaiwa/config/
-    - Add your Agora credentials:
-      kotlin
+- Create a file named config.kt in app/src/main/kotlin+java/com/example/kaiwa/config/
+- Add your Agora credentials:
+      
       package com.example.kaiwa.config
-
       const val APP_ID = "your-app-id"
       const val token = "your-token" 
 
