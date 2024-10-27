@@ -5,6 +5,34 @@ Kaiwa is a real-time video calling Android application built with Jetpack Compos
 Please note: The app apk and the source code are included in this github but after directly installing the app the video conferencing wont work right away as agora tokens are generated based on the channel name and everyone who has to join the same channel name should 
 should have the same token we can implement a javascript program that allowes users to create their channels and unique tokens which can make this app more production ready for now we are using agora test tokens that expire after a day.
 
+If you want to download the app without opening the android studio [Here is the apk link](https://drive.google.com/file/d/12BYygsG8qkOItvSGmqUhhcClE0f3ImgZ/view?usp=sharing)
+
+## App size
+- Installed as apk - 257MB
+- Installed from android studio - 95MB
+
+--APK (250MB):
+
+Contains native libraries (.so files) for ALL supported CPU architectures (armeabi-v7a, arm64-v8a, x86, x86_64)
+Includes all resources and assets at full resolution
+No optimization for different device configurations
+In our case, Agora SDK's native libraries for all architectures contribute significantly to the size
+
+
+--App Bundle (135MB):
+
+Android App Bundle (AAB) is an upload format that includes all resources and code
+Google Play Store generates optimized APKs based on device configuration
+When installed from Play Store, users only get the code and resources specific to their device
+Smaller because Play Store will create split APKs for different architectures
+
+
+--Android Studio Install (95MB):
+
+Android Studio knows your test device's exact architecture and configuration
+Installs only the necessary native libraries for your specific device architecture
+Excludes unused resources and architectures
+Most efficient because it's targeted for a specific device
 
 ## Features
 
