@@ -68,7 +68,7 @@ Most efficient because it's targeted for a specific device
 
 - Android Studio
 - JDK 11 or higher
-- Android SDK version 21 or higher
+- Android SDK version 24 or higher
 - An Agora account and App ID
 - Minimum Android target SDK: API 33 
 
